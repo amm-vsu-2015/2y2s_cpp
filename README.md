@@ -1,2 +1,7 @@
-# 2y2s_cpp
-2nd course 2nd semester. Subject: introduction into cpp language.
+# Язык программирования C++.
+
+2-й курс факультета ПММ ВГУ.
+Предмет: Языки и методы программирования.
+
+
+- [Простая геометрическая задача на треугольники](https://github.com/amm-vsu-2015/2y2s_cpp/tree/master/task1)
