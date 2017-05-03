@@ -15,7 +15,7 @@ int main()
 
 	setlocale(LC_ALL, "Russian");
 
-	int const COUNT = 5;
+	int const COUNT = 30;
 	int x[COUNT], y[COUNT];
 
 	cout << "Введите значения элементов первой последовательности х: ";
