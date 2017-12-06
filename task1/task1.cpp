@@ -10,11 +10,12 @@
 	4 4 1
 	4 4 12
 
-	Зарина была здесь!
 */
 
 #include <iostream>
 #include <cmath>
+#include <list>
+#include <iterator>
 using namespace std;
 
 /**
@@ -34,10 +35,6 @@ int calculateTriangle(double a, double b, double c) {
 	perimeter = (a + b + c) / 2.0;
 	area = sqrt(perimeter * (perimeter - a) * (perimeter - b) * (perimeter - c));
 
-	// cout << "area = " << area << "; ";
-	// cout << "perimeter = " << perimeter << "; ";
-	// cout << "a + b + c = " << a + b + c << endl;
-
 	double results[4] = {a, b, c, area};
 	sort(results, results + 4);
 
@@ -52,18 +49,19 @@ int calculateTriangle(double a, double b, double c) {
 
 int main()
 {
-	cout << "Hello! Please, write 3 values:(a, b, c)\n";
+	cout << "Hello! Please, write 3 values:\n";
 
 	int stop;
 
 	double a, b, c;
 	cin >> a >> b >> c;
 
-	if (!(a == b || a == c || b == c)) {
-		cout << "All sides of triangle is different! " << endl;
-		cin >> stop;
-		return 0;
-	}
+	double resort[3] = {a, b, c};
+	sort(resort, resort + 3);
+
+	a = resort[0];
+	b = resort[1];
+	c = resort[2];
 
 	// find the cos(a) of angle between two equal sides
 	double cosa = (pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b);
@@ -71,9 +69,9 @@ int main()
 	if (a + b <= c) {
 		cout << "Not a triangle!" << endl;
 	} else if (cosa <= 0) {
-		cout << "Rectangular triangle!" << endl;
+		cout << "Not acute triangle!" << endl;
 	} else {
-		cout << "Right triangle!" << endl << endl;
+		cout << "Correct acute triangle!" << endl << endl;
 		cout << "cosa = " << cosa << endl;
 		calculateTriangle(a, b, c);
 	}
