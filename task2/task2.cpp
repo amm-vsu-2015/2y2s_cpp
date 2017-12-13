@@ -88,14 +88,15 @@ void printList(List* list, int isNegative) {
 }
 
 int oddListCheck(List* list) {
+	int check = 0;
 	while (list->next != nullptr) {
-		if (list->value % 2 == 1 && list->next->value % 2 == 0) {
-			return 1;
+		if (list->value % 2 != 0 && list->next->value % 2 == 0) {
+			check = 1;
 		}
 		list = list->next;
 	}
 
-	return 0;
+	return check;
 }
 
 
