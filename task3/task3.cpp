@@ -19,8 +19,25 @@
 #include <iostream>
 using namespace std;
 
-const int LAB_SIZE = 20;
-int Labirint[LAB_SIZE][LAB_SIZE];
+const int LAB_SIZE = 25;
+
+// base
+struct Position;
+struct Stack;
+
+void printLabirint(int lab[LAB_SIZE][LAB_SIZE], Position* personAt = nullptr);
+void generateLabirint(int lab[LAB_SIZE][LAB_SIZE]);
+Position* setPerson(int lab[LAB_SIZE][LAB_SIZE]);
+
+// Stack
+Stack* push(Stack* stack, Position* position);
+Stack* pop(Stack* stack);
+
+// walking
+Stack* lookAround(int lab[LAB_SIZE][LAB_SIZE], Stack* mainStack, Stack* cell);
+void changeCell(int lab[LAB_SIZE][LAB_SIZE], Position* position, int value);
+int checkCell(int lab[LAB_SIZE][LAB_SIZE], Position* cell);
+void walk(int lab[LAB_SIZE][LAB_SIZE], Position* personAt);
 
 struct Position {
 	int x;
@@ -30,23 +47,30 @@ struct Position {
 		x = X;
 		y = Y;
 	}
-
-	// int operator==(const array[LAB_SIZE][LAB_SIZE]& lhs, const Position& rhs) {
-	//     return ((lhs))
-	// }
 };
 
-void printLabirint(int lab[LAB_SIZE][LAB_SIZE], Position* personAt = nullptr) {
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 10; j++) {
+
+
+void printLabirint(int lab[LAB_SIZE][LAB_SIZE], Position* personAt) {
+	for (int i = 0; i < LAB_SIZE - 1; i++) {
+		for (int j = 0; j < LAB_SIZE - 1; j++) {
 			char outChar;
-			if (lab[i][j]) {
-				outChar =  'X';
-			} else {
-				outChar =  '-';
+
+			switch (lab[i][j]) {
+				case 0:
+					outChar =  '-';
+					break;
+				case 1:
+					outChar =  'X';
+					break;
+				case 2:
+					outChar = '*';
+					break;
+				default:
+					break;
 			}
 
-			if (personAt != nullptr && personAt->x == i && personAt->y == j && !lab[i][j]) {
+			if (personAt != nullptr && personAt->x == i && personAt->y == j) {
 				outChar = '!';
 			}
 
@@ -58,8 +82,8 @@ void printLabirint(int lab[LAB_SIZE][LAB_SIZE], Position* personAt = nullptr) {
 
 void generateLabirint(int lab[LAB_SIZE][LAB_SIZE]) {
 	srand(time(NULL));
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 10; j++) {
+	for (int i = 0; i < LAB_SIZE - 1; i++) {
+		for (int j = 0; j < LAB_SIZE - 1; j++) {
 			lab[i][j] = ((rand() % 100 + 1) % 2 == 0);
 		}
 	}
@@ -78,39 +102,96 @@ Position* setPerson(int lab[LAB_SIZE][LAB_SIZE]) {
 			std::cout << "Bad position, this is wall. try again..." << '\n';
 		}
 	} while (lab[x][y]);
-
+	std::cout << x << y << '\n';
 	return new Position(x, y);
 }
 
-void walk(int lab[LAB_SIZE][LAB_SIZE]) {
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 10; j++) {
-			lab[i][j] = ((rand() % 100 + 1) % 2 == 0);
-		}
+
+
+struct Stack {
+	Position* position;
+	Stack* next = nullptr;
+};
+
+Stack* push(Stack* stack, Position* position) {
+	Stack* newStack = new Stack();
+	newStack->position = position;
+
+	if (stack != nullptr) {
+		newStack->next = stack;
+	}
+
+	return newStack;
+}
+
+Stack* pop(Stack* stack) {
+	Stack* popped = stack;
+	stack = stack->next;
+
+	return popped;
+}
+
+
+void walk(int lab[LAB_SIZE][LAB_SIZE], Position* personAt) {
+
+	Stack* stack = push(nullptr, personAt);
+	changeCell(lab, personAt, 2);
+
+	while(stack != nullptr) {
+		Stack* popped = stack;
+		stack = stack->next;
+		stack = lookAround(lab, stack, popped);
 	}
 }
 
-Graph* buildLabitintMap(int lab[LAB_SIZE][LAB_SIZE]) {
-	// generate tree
+
+Stack* lookAround(int lab[LAB_SIZE][LAB_SIZE], Stack* mainStack, Stack* cell) {
+	Position* cellPosition = cell->position;
+
+	// check around of cell
+	for (int idx_x = -1; idx_x < 2; idx_x++) {
+		for (int idx_y = -1; idx_y < 2; idx_y++) {
+			Position* position = new Position(cellPosition->x + idx_x, cellPosition->y + idx_y);
+
+			if (checkCell(lab, position)) {
+				changeCell(lab, position, 2);
+				mainStack = push(mainStack, position);
+			}
+		}
+	}
+
+	return mainStack;
 }
 
-struct Graph {
-	int checked;
-	Graph* left;
-	Graph* right;
+void changeCell(int lab[LAB_SIZE][LAB_SIZE], Position* position, int value) {
+	lab[position->x][position->y] = value;
 }
+
+int checkCell(int lab[LAB_SIZE][LAB_SIZE], Position* cell) {
+	int isX_correct = (cell->x < LAB_SIZE-1 && cell->x >= 0);
+	int isY_correct = (cell->y < LAB_SIZE-1 && cell->y >= 0);
+
+	return (isX_correct && isY_correct && lab[cell->x][cell->y] == 0);
+}
+
 
 int main()
 {
 	setlocale(LC_ALL, "Russian");
 
+	int Labirint[LAB_SIZE][LAB_SIZE];
+
 	generateLabirint(Labirint);
+
+	std::cout << "Preview board: " << '\n';
 	printLabirint(Labirint);
 
 	Position* personAt = setPerson(Labirint);
-	printLabirint(Labirint, personAt);
 
-	walk(Labitint)
+	walk(Labirint, personAt);
+
+	std::cout << "Result board: " << '\n';
+	printLabirint(Labirint, personAt);
 
 	int stop;
 	cin >> stop;
